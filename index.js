@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const Chance = require('chance');
 const consola = require('consola');
+const fs = require('fs/promises');
 
 const chance = new Chance();
 
@@ -206,7 +207,9 @@ async function cleanup(client) {
     [1000, 1e5],
   ];
 
+  const results = {};
   for (const [fooCount, barCount] of counts) {
+    const unindexedKey = `unindexed-${fooCount}x${barCount}`;
     let times = await runBenchmark(
       client.foo,
       client.bar,
@@ -214,10 +217,12 @@ async function cleanup(client) {
       fooCount,
       barCount
     );
+    results[unindexedKey] = times;
     console.log();
-    consola.success(`unindexed-${fooCount}x${barCount}`, times);
+    consola.success(unindexedKey, times);
     console.log();
 
+    const indexedKey = `indexed-${fooCount}x${barCount}`;
     times = await runBenchmark(
       client.foo,
       client.baz,
@@ -225,8 +230,11 @@ async function cleanup(client) {
       fooCount,
       barCount
     );
+    results[indexedKey] = times;
     console.log();
-    consola.success(`indexed-${fooCount}x${barCount}`, times);
+    consola.success(indexedKey, times);
     console.log();
   }
+
+  await fs.writeFile('results.json', JSON.stringify(results));
 })();
