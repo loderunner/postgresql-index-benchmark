@@ -209,11 +209,11 @@ async function cleanup(client) {
   const counts = [
     [10, 100],
     [10, 1000],
+    [10, 1e4],
     [10, 1e5],
-    [10, 1e6],
     [100, 1e5],
     [1000, 1e5],
-    [1e5, 1e6],
+    [1e4, 1e5],
   ];
 
   const benchmark = {};
