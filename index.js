@@ -169,22 +169,27 @@ async function runBenchmark(...args) {
     times.push(await runSingleBenchmark(...args));
   }
 
-  const benchmark = {};
+  const results = {};
   for (const t of times) {
     for (const [k, v] of Object.entries(t)) {
-      benchmark[k] = benchmark[k] ? [...benchmark[k], v] : [v];
+      results[k] = results[k] ? [...results[k], v] : [v];
     }
   }
 
-  for (const [k, arr] of Object.entries(benchmark)) {
-    benchmark[k] = {
-      min: Math.min(...arr),
-      avg: arr.reduce((acc, v) => acc + v, 0) / arr.length,
-      max: Math.max(...arr),
-    };
-  }
+  return results;
+}
 
-  return benchmark;
+function stats(times) {
+  return Object.fromEntries(
+    Object.entries(times).map(([k, arr]) => [
+      k,
+      {
+        min: Math.min(...arr),
+        avg: arr.reduce((acc, v) => acc + v, 0) / arr.length,
+        max: Math.max(...arr),
+      },
+    ])
+  );
 }
 
 async function cleanup(client) {
@@ -204,12 +209,12 @@ async function cleanup(client) {
   const counts = [
     [10, 100],
     [10, 1000],
-    [10, 1e5],
-    [100, 1e5],
-    [1000, 1e5],
+    // [10, 1e5],
+    // [100, 1e5],
+    // [1000, 1e5],
   ];
 
-  const results = {};
+  const benchmark = {};
   for (const [fooCount, barCount] of counts) {
     const unindexedKey = `unindexed-${fooCount}x${barCount}`;
     let times = await runBenchmark(
@@ -219,9 +224,9 @@ async function cleanup(client) {
       fooCount,
       barCount
     );
-    results[unindexedKey] = times;
+    benchmark[unindexedKey] = times;
     console.log();
-    consola.success(unindexedKey, times);
+    consola.success(unindexedKey, stats(times));
     console.log();
 
     const indexedKey = `indexed-${fooCount}x${barCount}`;
@@ -232,11 +237,11 @@ async function cleanup(client) {
       fooCount,
       barCount
     );
-    results[indexedKey] = times;
+    benchmark[indexedKey] = times;
     console.log();
-    consola.success(indexedKey, times);
+    consola.success(indexedKey, stats(times));
     console.log();
   }
 
-  await fs.writeFile('results.json', JSON.stringify(results));
+  await fs.writeFile('benchmark.json', JSON.stringify(benchmark));
 })();
