@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:helloworld@localhost:5432/prisma_indexes?schema=public&connection_limit=20&pool_timeout=0"
+  url      = env("DATABASE_URL")
 }
 
 model Foo {
