@@ -106,12 +106,14 @@ async function del(bar, toDelete) {
   return [count, duration];
 }
 
-async function delFoos(foo) {
+async function delFoos(foo, fooIds) {
   const startTime = new Date();
-  const res = await foo.deleteMany();
+  const res = await Promise.all(
+    fooIds.map((fooId) => foo.delete({ where: { id: fooId } }))
+  );
   const duration = new Date() - startTime;
 
-  return [res.count, duration];
+  return [res.length, duration];
 }
 
 async function runSingleBenchmark(foo, bar, barName, fooCount, barCount) {
@@ -151,7 +153,7 @@ async function runSingleBenchmark(foo, bar, barName, fooCount, barCount) {
   times.delete = duration;
   consola.debug(`deleted ${deleteCount} ${barName} in ${duration}ms`);
 
-  [deleteCount, duration] = await delFoos(foo);
+  [deleteCount, duration] = await delFoos(foo, fooIds);
   times.deleteCascade = duration;
   consola.debug(
     `deleted ${deleteCount} foos cascading into all ${barName} in ${duration}ms`
