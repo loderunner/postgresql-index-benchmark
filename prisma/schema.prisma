@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:helloworld@localhost:5432/prisma_indexes?schema=public&connection_limit=20&pool_timeout=0"
+}
+
+model Foo {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  bars Bar[]
+  bazs Baz[]
+}
+
+model Bar {
+  id    Int    @id @default(autoincrement())
+  label String
+
+  fooId Int
+  foo   Foo @relation(fields: [fooId], references: [id], onDelete: Cascade)
+}
+
+model Baz {
+  id    Int    @id @default(autoincrement())
+  label String
+
+  fooId Int
+  foo   Foo @relation(fields: [fooId], references: [id], onDelete: Cascade)
+
+  @@index([fooId])
+}
