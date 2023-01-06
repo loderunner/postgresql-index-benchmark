@@ -210,8 +210,10 @@ async function cleanup(client) {
     [10, 100],
     [10, 1000],
     [10, 1e5],
+    [10, 1e6],
     [100, 1e5],
     [1000, 1e5],
+    [1e5, 1e6],
   ];
 
   const benchmark = {};
