@@ -167,6 +167,11 @@ async function runBenchmark(...args) {
   const times = [];
   for (let i = 0; i < numberOfRuns; i++) {
     times.push(await runSingleBenchmark(...args));
+
+    // Run garbage collector
+    if (global.gc) {
+      global.gc();
+    }
   }
 
   const results = {};
