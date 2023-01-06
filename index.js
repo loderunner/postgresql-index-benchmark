@@ -113,7 +113,7 @@ async function delFoos(foo) {
   return [res.count, duration];
 }
 
-async function runBenchmark(foo, bar, barName, fooCount, barCount) {
+async function runSingleBenchmark(foo, bar, barName, fooCount, barCount) {
   let duration,
     fooIds,
     barIds,
@@ -157,6 +157,31 @@ async function runBenchmark(foo, bar, barName, fooCount, barCount) {
   );
 
   return times;
+}
+
+async function runBenchmark(...args) {
+  const numberOfRuns = 10;
+  const times = [];
+  for (let i = 0; i < numberOfRuns; i++) {
+    times.push(await runSingleBenchmark(...args));
+  }
+
+  const benchmark = {};
+  for (const t of times) {
+    for (const [k, v] of Object.entries(t)) {
+      benchmark[k] = benchmark[k] ? [...benchmark[k], v] : [v];
+    }
+  }
+
+  for (const [k, arr] of Object.entries(benchmark)) {
+    benchmark[k] = {
+      min: Math.min(...arr),
+      avg: arr.reduce((acc, v) => acc + v, 0) / arr.length,
+      max: Math.max(...arr),
+    };
+  }
+
+  return benchmark;
 }
 
 async function cleanup(client) {
