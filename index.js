@@ -236,6 +236,11 @@ async function cleanup(client) {
     consola.success(unindexedKey, stats(times));
     console.log();
 
+    await fs.writeFile(
+      `results-${unindexedKey}.json`,
+      JSON.stringify(benchmark)
+    );
+
     const indexedKey = `indexed-${fooCount}x${barCount}`;
     times = await runBenchmark(
       client.foo,
@@ -248,7 +253,7 @@ async function cleanup(client) {
     console.log();
     consola.success(indexedKey, stats(times));
     console.log();
-  }
 
-  await fs.writeFile('benchmark.json', JSON.stringify(benchmark));
+    await fs.writeFile(`results-${indexedKey}.json`, JSON.stringify(benchmark));
+  }
 })();
