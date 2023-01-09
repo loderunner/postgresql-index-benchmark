@@ -1,3 +1,3 @@
-# prisma-index-benchmark
+# postgresql-index-benchmark
 
-A benchmark runner for Prisma relations with and without indexes
+A benchmark runner for PostgreSQL relations with and without indexes
