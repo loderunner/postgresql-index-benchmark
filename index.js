@@ -221,7 +221,6 @@ async function cleanup(client) {
     [1e4, 1e5],
   ];
 
-  const benchmark = {};
   for (const [fooCount, barCount] of counts) {
     const unindexedKey = `unindexed-${fooCount}x${barCount}`;
     let times = await runBenchmark(
@@ -231,15 +230,11 @@ async function cleanup(client) {
       fooCount,
       barCount
     );
-    benchmark[unindexedKey] = times;
     console.log();
     consola.success(unindexedKey, stats(times));
     console.log();
 
-    await fs.writeFile(
-      `results-${unindexedKey}.json`,
-      JSON.stringify(benchmark)
-    );
+    await fs.writeFile(`results-${unindexedKey}.json`, JSON.stringify(times));
 
     const indexedKey = `indexed-${fooCount}x${barCount}`;
     times = await runBenchmark(
@@ -249,11 +244,10 @@ async function cleanup(client) {
       fooCount,
       barCount
     );
-    benchmark[indexedKey] = times;
     console.log();
     consola.success(indexedKey, stats(times));
     console.log();
 
-    await fs.writeFile(`results-${indexedKey}.json`, JSON.stringify(benchmark));
+    await fs.writeFile(`results-${indexedKey}.json`, JSON.stringify(times));
   }
 })();
